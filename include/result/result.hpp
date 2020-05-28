@@ -22,8 +22,8 @@ public:
     E val;
   };
 
-  Result(ok_tag t, ok_t &&value) : m_v(std::move(value)){};
-  Result(err_tag e, err_t &&error) : m_v(std::move(error)){};
+  Result(ok_tag /*t*/, ok_t &&value) : m_v(std::move(value)){};
+  Result(err_tag /*e*/, err_t &&error) : m_v(std::move(error)){};
   Result(const Result &) = default;
   Result(Result &&) = default;
   ~Result() = default;
