@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <gtest/gtest.h>
 
 #include <result/result.hpp>
@@ -30,6 +32,32 @@ GTEST_TEST(resultTest, test_err) {
 
   ASSERT_EQ(r.unwrap_err(), 5);
   ASSERT_THROW(r.unwrap(), std::bad_variant_access);
+}
+
+GTEST_TEST(resultTest, move) {
+  {
+    auto success = Result<std::string, int>{Ok("Hello world")};
+    std::string s = std::move(success.unwrap());
+    ASSERT_EQ(s, "Hello world");
+    ASSERT_NE(success.unwrap(), "Hello world");
+    ASSERT_EQ(success.unwrap(), "");
+  }
+
+  {
+    auto failure = Result<int, std::string>{Err("Hello world")};
+    std::string s = std::move(failure.unwrap_err());
+    ASSERT_EQ(s, "Hello world");
+    ASSERT_NE(failure.unwrap_err(), "Hello world");
+    ASSERT_EQ(failure.unwrap_err(), "");
+  }
+
+  {
+    auto x = Result<std::unique_ptr<int>, int>{Ok(std::make_unique<int>(5))};
+    ASSERT_EQ(5, *x.unwrap());
+    std::unique_ptr<int> y = std::move(x.unwrap());
+    ASSERT_EQ(5, *y);
+    ASSERT_EQ(nullptr, x.unwrap());
+ }
 }
 
 int main(int argc, char **argv) {

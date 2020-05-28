@@ -22,8 +22,8 @@ public:
     E val;
   };
 
-  Result(ok_tag t, ok_t &&value) : m_v(value){};
-  Result(err_tag e, err_t &&error) : m_v(error){};
+  Result(ok_tag t, ok_t &&value) : m_v(std::move(value)){};
+  Result(err_tag e, err_t &&error) : m_v(std::move(error)){};
   Result(const Result &) = default;
   Result(Result &&) = default;
   ~Result() = default;
@@ -73,12 +73,15 @@ public:
   // TODO: expect_err
 
   auto unwrap() const -> const T & { return std::get<ok_t>(this->m_v).val; };
-  // TODO: auto unwrap() -> T &&;
+  auto unwrap() -> T && { return std::move(std::get<ok_t>(this->m_v).val); };
 
   auto unwrap_err() const -> const E & {
     return std::get<err_t>(this->m_v).val;
   };
-  // TODO: auto unwrap_err() -> E&&
+  auto unwrap_err() -> E && {
+    return std::move(std::get<err_t>(this->m_v).val);
+  };
+
   // TODO: unwrap_or_default
 
 private:
