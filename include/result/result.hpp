@@ -72,8 +72,13 @@ public:
   // TODO: expect
   // TODO: expect_err
 
-  // TODO: unwrap
-  // TODO: unwrap_err
+  auto unwrap() const -> const T & { return std::get<ok_t>(this->m_v).val; };
+  // TODO: auto unwrap() -> T &&;
+
+  auto unwrap_err() const -> const E & {
+    return std::get<err_t>(this->m_v).val;
+  };
+  // TODO: auto unwrap_err() -> E&&
   // TODO: unwrap_or_default
 
 private:

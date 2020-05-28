@@ -12,6 +12,9 @@ GTEST_TEST(resultTest, test_ok) {
 
   const auto e = r.err();
   ASSERT_FALSE(e.has_value());
+
+  ASSERT_EQ(r.unwrap(), 5);
+  ASSERT_THROW(r.unwrap_err(), std::bad_variant_access);
 }
 
 GTEST_TEST(resultTest, test_err) {
@@ -24,6 +27,9 @@ GTEST_TEST(resultTest, test_err) {
 
   const auto e = r.err();
   ASSERT_TRUE(e.has_value());
+
+  ASSERT_EQ(r.unwrap_err(), 5);
+  ASSERT_THROW(r.unwrap(), std::bad_variant_access);
 }
 
 int main(int argc, char **argv) {
