@@ -31,7 +31,7 @@ public:
   auto operator=(Result &&) noexcept -> Result & = default;
   auto operator=(const Result &) -> Result & = default;
 
-  auto equals(const Result<T, E> &other) const -> bool {
+  [[nodiscard]] auto equals(const Result<T, E> &other) const -> bool {
     const auto index = this->m_v.index();
     if (index != other.m_v.index()) {
       return false;
@@ -42,18 +42,18 @@ public:
     return std::get<1>(this->m_v).val == std::get<1>(other.m_v).val;
   };
 
-  auto is_ok() const -> bool {
+  [[nodiscard]] auto is_ok() const -> bool {
     return std::holds_alternative<ok_t>(this->m_v);
   };
-  auto is_err() const -> bool { return !this->is_ok(); };
+  [[nodiscard]] auto is_err() const -> bool { return !this->is_ok(); };
 
-  auto ok() const -> std::optional<T> {
+  [[nodiscard]] auto ok() const -> std::optional<T> {
     if (!this->is_ok()) {
       return std::nullopt;
     }
     return std::make_optional(std::get<ok_t>(this->m_v).val);
   };
-  auto err() const -> std::optional<E> {
+  [[nodiscard]] auto err() const -> std::optional<E> {
     if (!this->is_err()) {
       return std::nullopt;
     }
@@ -83,13 +83,17 @@ public:
   // TODO: expect
   // TODO: expect_err
 
-  auto unwrap() const -> const T & { return std::get<ok_t>(this->m_v).val; };
-  auto unwrap() -> T && { return std::move(std::get<ok_t>(this->m_v).val); };
+  [[nodiscard]] auto unwrap() const -> const T & {
+    return std::get<ok_t>(this->m_v).val;
+  };
+  [[nodiscard]] auto unwrap() -> T && {
+    return std::move(std::get<ok_t>(this->m_v).val);
+  };
 
-  auto unwrap_err() const -> const E & {
+  [[nodiscard]] auto unwrap_err() const -> const E & {
     return std::get<err_t>(this->m_v).val;
   };
-  auto unwrap_err() -> E && {
+  [[nodiscard]] auto unwrap_err() -> E && {
     return std::move(std::get<err_t>(this->m_v).val);
   };
 
