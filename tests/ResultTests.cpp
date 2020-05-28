@@ -60,6 +60,19 @@ GTEST_TEST(resultTest, move) {
  }
 }
 
+GTEST_TEST(resultTest, comparison) {
+  const auto x = Result<int, int>{Ok(5)};
+  ASSERT_EQ(x, x);
+  const auto y = Result<int, int>{Err(5)};
+  ASSERT_NE(x, y);
+  const auto z = Result<int, int>{Ok(6)};
+  ASSERT_NE(x, z);
+  ASSERT_NE(z, y);
+  ASSERT_EQ(z, z);
+  const auto k = Result<int, int>{Err(6)};
+  ASSERT_NE(y, k);
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

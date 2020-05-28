@@ -31,6 +31,17 @@ public:
   auto operator=(Result &&) -> Result & = default;
   auto operator=(const Result &) -> Result & = default;
 
+  auto equals(const Result<T, E> &other) const -> bool {
+    const auto index = this->m_v.index();
+    if (index != other.m_v.index()) {
+      return false;
+    }
+    if (0 == index) {
+      return std::get<0>(this->m_v).val == std::get<0>(other.m_v).val;
+    }
+    return std::get<1>(this->m_v).val == std::get<1>(other.m_v).val;
+  };
+
   auto is_ok() const -> bool {
     return std::holds_alternative<ok_t>(this->m_v);
   };
@@ -87,5 +98,14 @@ public:
 private:
   std::variant<ok_t, err_t> m_v;
 };
+
+template <typename T, typename E>
+constexpr auto operator==(const Result<T, E> &a, const Result<T, E> &b) {
+  return a.equals(b);
+}
+template <typename T, typename E>
+constexpr auto operator!=(const Result<T, E> &a, const Result<T, E> &b) {
+  return !a.equals(b);
+}
 
 #endif /* CPP_RESULT_HPP */
