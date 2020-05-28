@@ -1,3 +1,6 @@
+#ifndef CPP_RESULT_HPP
+#define CPP_RESULT_HPP
+
 #include <variant>
 
 // TODO: Tests
@@ -67,3 +70,4 @@ private:
   std::variant<ok_t, err_t> m_v;
 };
 
+#endif /* CPP_RESULT_HPP */
