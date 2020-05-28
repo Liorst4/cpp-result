@@ -4,21 +4,25 @@
 // TODO: Format
 // TODO: Tests
 
-// TODO: Automatically resolve T
-template <typename T> struct Ok {
-	T val;
-};
+struct ok_tag {};
+struct err_tag {};
 
-// TODO: Automatically resolve T
-template <typename T> struct Err {
-	T val;
-};
-
+#define Ok(x)                                                                  \
+  ok_tag{}, { x }
+#define Err(x)                                                                 \
+  err_tag{}, { x }
 
 template <typename T, typename E> class Result {
 public:
-  Result(Ok<T>&& value): m_v(value) {};
-  Result(Err<E>&& error) : m_v(error) {};
+  struct ok_t {
+    T val;
+  };
+  struct err_t {
+    E val;
+  };
+
+  Result(ok_tag t, ok_t &&value) : m_v(value){};
+  Result(err_tag e, err_t &&error) : m_v(error){};
   Result(const Result &) = default;
   Result(Result &&) = default;
   ~Result() = default;
@@ -26,7 +30,9 @@ public:
   auto operator=(Result &&) -> Result & = default;
   auto operator=(const Result &) -> Result & = default;
 
-  auto is_ok() const -> bool { return std::holds_alternative<Ok<T>>(this->m_v); };
+  auto is_ok() const -> bool {
+    return std::holds_alternative<ok_t>(this->m_v);
+  };
   auto is_err() const -> bool { return !this->is_ok(); };
 
   // TODO: auto ok() const -> std::optional<T>;
@@ -60,5 +66,6 @@ public:
   // TODO: unwrap_or_default
 
 private:
-  std::variant<Ok<T>, Err<E>> m_v;
+  std::variant<ok_t, err_t> m_v;
 };
+
