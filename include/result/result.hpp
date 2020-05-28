@@ -1,6 +1,8 @@
 #ifndef CPP_RESULT_HPP
 #define CPP_RESULT_HPP
 
+#include <exception>
+#include <optional>
 #include <variant>
 
 struct ok_tag {};
@@ -34,8 +36,18 @@ public:
   };
   auto is_err() const -> bool { return !this->is_ok(); };
 
-  // TODO: auto ok() const -> std::optional<T>;
-  // TODO: auto err() const -> std::optional<T>;
+  auto ok() const -> std::optional<T> {
+    if (!this->is_ok()) {
+      return std::nullopt;
+    }
+    return std::make_optional(std::get<ok_t>(this->m_v).val);
+  };
+  auto err() const -> std::optional<E> {
+    if (!this->is_err()) {
+      return std::nullopt;
+    }
+    return std::make_optional(std::get<err_t>(this->m_v).val);
+  };
 
   // TODO: auto as_ref() const -> Result<const T&, const E&>;
   // TODO: auto as_mut() -> Result<T&, E&>;
