@@ -25,10 +25,10 @@ public:
   Result(ok_tag /*t*/, ok_t &&value) : m_v(std::move(value)){};
   Result(err_tag /*e*/, err_t &&error) : m_v(std::move(error)){};
   Result(const Result &) = default;
-  Result(Result &&) = default;
+  Result(Result &&) noexcept = default;
   ~Result() = default;
 
-  auto operator=(Result &&) -> Result & = default;
+  auto operator=(Result &&) noexcept -> Result & = default;
   auto operator=(const Result &) -> Result & = default;
 
   auto equals(const Result<T, E> &other) const -> bool {
