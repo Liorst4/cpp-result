@@ -3,8 +3,6 @@
 
 #include <variant>
 
-// TODO: Tests
-
 struct ok_tag {};
 struct err_tag {};
 

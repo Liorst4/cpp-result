@@ -10,3 +10,12 @@ target_include_directories(
   INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+
+# Tests
+find_package(GTest)
+include(GoogleTest)
+
+enable_testing()
+add_executable(ResultTests tests/ResultTests.cpp)
+target_link_libraries(ResultTests result gtest)
+gtest_add_tests(TARGET ResultTests)
