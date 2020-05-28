@@ -1,7 +1,5 @@
 #include <variant>
 
-// TODO: Lint
-// TODO: Format
 // TODO: Tests
 
 struct ok_tag {};
