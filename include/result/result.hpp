@@ -15,6 +15,8 @@ struct err_tag {};
 
 template <typename T, typename E> class Result {
 public:
+  // Wrapping T and E with ok_t and err_t because `std::variant` doesn't support
+  // multiple instances of the same type.
   struct ok_t {
     T val;
   };
