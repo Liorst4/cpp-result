@@ -73,8 +73,16 @@ public:
   // TODO: iter ?
   // TODO: iter_mut ?
 
-  // TODO: and
   // TODO: and_then
+  // Added underscore at the end because `and` is reserved.
+  template <typename U>
+  [[nodiscard]] auto and_(const Result<U, E> &other) const -> Result<U, E> {
+    if (this->is_ok()) {
+      return other;
+    }
+    return {Err(this->unwrap_err())};
+  }
+
 
   // TODO: or
   // TODO: or_else

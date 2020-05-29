@@ -73,6 +73,15 @@ GTEST_TEST(resultTest, comparison) {
   ASSERT_NE(y, k);
 }
 
+GTEST_TEST(resultTest, and_) {
+  const auto r = Result<int, int>{Err(7)};
+  const auto l = Result<int, int>{Ok(7)};
+  const auto h = Result<int, int>{Err(8)};
+  ASSERT_EQ(r.and_(l), r);
+  ASSERT_EQ(l.and_(r), r);
+  ASSERT_NE(r.and_(h), h);
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
