@@ -102,7 +102,15 @@ public:
     return {Ok(this->unwrap())};
   }
 
-  // TODO: or_else
+  template <typename F>
+  [[nodiscard]] auto
+  or_else(const std::function<Result<T, F>(const E &)> &op) const
+      -> Result<T, F> {
+    if (this->is_err()) {
+      return op(this->unwrap_err());
+    }
+    return {Ok(this->unwrap())};
+  }
 
   // TODO: unwrap_or
   // TODO: unwrap_or_else

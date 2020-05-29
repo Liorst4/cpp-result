@@ -97,6 +97,7 @@ GTEST_TEST(resultTest, and_then) {
 }
 
 // TODO: Test or_
+// TODO: Test or_else
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
