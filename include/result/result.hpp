@@ -4,6 +4,7 @@
 #include <exception>
 #include <optional>
 #include <variant>
+#include <functional>
 
 struct ok_tag {};
 struct err_tag {};
@@ -73,7 +74,6 @@ public:
   // TODO: iter ?
   // TODO: iter_mut ?
 
-  // TODO: and_then
   // Added underscore at the end because `and` is reserved.
   template <typename U>
   [[nodiscard]] auto and_(const Result<U, E> &other) const -> Result<U, E> {
@@ -83,6 +83,15 @@ public:
     return {Err(this->unwrap_err())};
   }
 
+  template <typename U>
+  [[nodiscard]] auto
+  and_then(const std::function<Result<U, E>(const T &)> &op) const
+      -> Result<U, E> {
+    if (this->is_ok()) {
+      return op(this->unwrap());
+    }
+    return {Err(this->unwrap_err())};
+  }
 
   // TODO: or
   // TODO: or_else

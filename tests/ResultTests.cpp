@@ -82,6 +82,20 @@ GTEST_TEST(resultTest, and_) {
   ASSERT_NE(r.and_(h), h);
 }
 
+GTEST_TEST(resultTest, and_then) {
+  const auto e = Result<int, int>{Err(7)};
+  const auto o = Result<int, int>{Ok(6)};
+
+  const auto x =
+      e.and_then<int>([](const int &) -> Result<int, int> { return {Ok(5)}; });
+  ASSERT_TRUE(x.is_err());
+
+  const auto y =
+      o.and_then<int>([](const int &) -> Result<int, int> { return {Ok(5)}; });
+  ASSERT_TRUE(y.is_ok());
+  ASSERT_EQ(5, y.unwrap());
+}
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
