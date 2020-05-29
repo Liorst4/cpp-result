@@ -96,6 +96,8 @@ GTEST_TEST(resultTest, and_then) {
   ASSERT_EQ(5, y.unwrap());
 }
 
+// TODO: Test or_
+
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

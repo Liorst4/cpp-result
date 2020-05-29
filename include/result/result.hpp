@@ -93,7 +93,15 @@ public:
     return {Err(this->unwrap_err())};
   }
 
-  // TODO: or
+  // Added underscore at the end because `or` is reserved.
+  template <typename F>
+  [[nodiscard]] auto or_(const Result<T, F> &res) const -> Result<T, F> {
+    if (this->is_err()) {
+      return res;
+    }
+    return {Ok(this->unwrap())};
+  }
+
   // TODO: or_else
 
   // TODO: unwrap_or
