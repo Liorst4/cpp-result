@@ -98,6 +98,7 @@ GTEST_TEST(resultTest, and_then) {
 
 // TODO: Test or_
 // TODO: Test or_else
+// TODO: Test TRY_ASSIGNMENT.
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
