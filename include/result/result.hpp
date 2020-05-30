@@ -121,15 +121,13 @@ public:
   [[nodiscard]] auto unwrap() const -> const T & {
     return std::get<ok_t>(this->m_v).val;
   };
-  [[nodiscard]] auto unwrap() -> T && {
-    return std::move(std::get<ok_t>(this->m_v).val);
-  };
+  [[nodiscard]] auto unwrap() -> T & { return std::get<ok_t>(this->m_v).val; };
 
   [[nodiscard]] auto unwrap_err() const -> const E & {
     return std::get<err_t>(this->m_v).val;
   };
-  [[nodiscard]] auto unwrap_err() -> E && {
-    return std::move(std::get<err_t>(this->m_v).val);
+  [[nodiscard]] auto unwrap_err() -> E & {
+    return std::get<err_t>(this->m_v).val;
   };
 
   // TODO: unwrap_or_default
