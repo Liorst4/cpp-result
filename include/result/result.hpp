@@ -242,7 +242,7 @@ constexpr auto operator!=(const Result<T, E> &a, const Result<T, E> &b) {
     if (r.is_err()) {                                                          \
       return {Err(std::move(r.as_ref().unwrap_err()))};                        \
     }                                                                          \
-    lvalue = std::move(r.as_ref().unwrap());                                   \
+    lvalue = std::move(r.as_mut().unwrap());                                   \
   } while (false)
 
 #endif /* CPP_RESULT_HPP */
