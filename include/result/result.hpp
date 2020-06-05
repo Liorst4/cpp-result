@@ -77,8 +77,6 @@ public:
   // TODO: map_or_else
   // TODO: map_err
 
-  // TODO: iter ?
-  // TODO: iter_mut ?
 
   // Added underscore at the end because `and` is reserved.
   template <typename U>
