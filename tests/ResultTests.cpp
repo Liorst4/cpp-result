@@ -75,6 +75,28 @@ SCENARIO("OK", "[result]") {
         REQUIRE_THROWS_AS(r.expect_err("oh no!") == 5, ResultException);
       }
     }
+    WHEN("Calling map") {
+      THEN("The result is mapped") {
+        REQUIRE(r.map<double>([](const int &) { return 5.5; }).unwrap() == 5.5);
+      }
+    }
+    WHEN("Calling map_or") {
+      THEN("The result is mapped") {
+        REQUIRE(r.map_or<double>(4.4, [](const int &) { return 5.5; }) == 5.5);
+      }
+    }
+    WHEN("Calling map_or_else") {
+      THEN("The ok is mapped") {
+        REQUIRE(r.map_or_else<double>([](const int &) { return 4.4; },
+                                      [](const int &) { return 5.5; }) == 5.5);
+      }
+    }
+    WHEN("Calling map_err") {
+      THEN("The ok value is returned") {
+        REQUIRE(r.map_err<double>([](const int &) { return 4.4; }).unwrap() ==
+                5);
+      }
+    }
   }
   GIVEN("A move only ok value") {
     auto success =
@@ -155,6 +177,28 @@ SCENARIO("ERR", "[result]") {
     WHEN("Calling expect_err") {
       THEN("The expected value is returned") {
         REQUIRE(r.expect_err("oh no!") == 5);
+      }
+    }
+    WHEN("Calling map") {
+      THEN("The result is not mapped") {
+        REQUIRE(r.map<double>([](const int &) { return 5.5; }).unwrap_err() == 5);
+      }
+    }
+    WHEN("Calling map_or") {
+      THEN("The result is not mapped") {
+        REQUIRE(r.map_or<double>(4.4, [](const int &) { return 5.5; }) == 4.4);
+      }
+    }
+    WHEN("Calling map_or_else") {
+      THEN("The err is mapped") {
+        REQUIRE(r.map_or_else<double>([](const int &) { return 4.4; },
+                                      [](const int &) { return 5.5; }) == 4.4);
+      }
+    }
+    WHEN("Calling map_err") {
+      THEN("The err value is mapped") {
+        REQUIRE(r.map_err<double>([](const int &) { return 4.4; }).unwrap_err() ==
+                4.4);
       }
     }
   }

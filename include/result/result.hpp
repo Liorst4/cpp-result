@@ -72,11 +72,42 @@ public:
   // TODO: auto as_ref() const -> Result<const T&, const E&>;
   // TODO: auto as_mut() -> Result<T&, E&>;
 
-  // TODO: map
-  // TODO: map_or
-  // TODO: map_or_else
-  // TODO: map_err
+  template <typename U>
+  [[nodiscard]] auto map(const std::function<U(const T &)> &op) const
+      -> Result<U, E> {
+    if (!this->is_ok()) {
+      return {Err(this->unwrap_err())};
+    }
+    return {Ok(op(this->unwrap()))};
+  };
 
+  template <typename U>
+  [[nodiscard]] auto map_or(const U &default_value,
+                            const std::function<U(const T &)> &op) const -> U {
+    if (!this->is_ok()) {
+      return default_value;
+    }
+    return op(this->unwrap());
+  }
+
+  template <typename U>
+  [[nodiscard]] auto map_or_else(const std::function<U(const E &)> &on_err,
+                                 const std::function<U(const T &)> &on_ok) const
+      -> U {
+    if (!this->is_ok()) {
+      return on_err(this->unwrap_err());
+    }
+    return on_ok(this->unwrap());
+  }
+
+  template <typename F>
+  [[nodiscard]] auto map_err(const std::function<F(const E &)> &op) const
+      -> Result<T, F> {
+    if (!this->is_ok()) {
+      return {Err(op(this->unwrap_err()))};
+    }
+    return {Ok(this->unwrap())};
+  }
 
   // Added underscore at the end because `and` is reserved.
   template <typename U>
