@@ -112,7 +112,6 @@ public:
     return {Ok(this->unwrap())};
   }
 
-  // TODO: unwrap_or
   // TODO: unwrap_or_else
 
   // TODO: expect
@@ -122,6 +121,13 @@ public:
     return std::get<ok_t>(this->m_v).val;
   };
   [[nodiscard]] auto unwrap() -> T & { return std::get<ok_t>(this->m_v).val; };
+
+  [[nodiscard]] auto unwrap_or(const T &default_value) const -> const T & {
+    if (!this->is_ok()) {
+      return default_value;
+    }
+    return this->unwrap();
+  }
 
   [[nodiscard]] auto unwrap_err() const -> const E & {
     return std::get<err_t>(this->m_v).val;
