@@ -99,14 +99,14 @@ SCENARIO("OK", "[result]") {
     }
   }
   GIVEN("A move only ok value") {
-    auto success =
-        Result<std::unique_ptr<int>, int>{Ok(std::make_unique<int>(5))};
-    REQUIRE(5 == *success.unwrap());
+    auto success = Result<std::unique_ptr<int>, int>{
+        Ok(std::move(std::make_unique<int>(5)))};
+    REQUIRE(5 == *success.as_ref().unwrap());
     WHEN("Its moved") {
-      std::unique_ptr<int> y = std::move(success.unwrap());
+      std::unique_ptr<int> y = std::move(success.as_mut().unwrap());
       THEN("The value moved") {
         REQUIRE(5 == *y);
-        REQUIRE(nullptr == success.unwrap());
+        REQUIRE(nullptr == success.as_ref().unwrap());
       }
     }
   }
@@ -205,12 +205,12 @@ SCENARIO("ERR", "[result]") {
   GIVEN("A move only err value") {
     auto failure =
         Result<int, std::unique_ptr<int>>{Err(std::make_unique<int>(5))};
-    REQUIRE(5 == *failure.unwrap_err());
+    REQUIRE(5 == *failure.as_ref().unwrap_err());
     WHEN("Its moved") {
-      std::unique_ptr<int> y = std::move(failure.unwrap_err());
+      std::unique_ptr<int> y = std::move(failure.as_mut().unwrap_err());
       THEN("The value moved") {
         REQUIRE(5 == *y);
-        REQUIRE(nullptr == failure.unwrap_err());
+        REQUIRE(nullptr == failure.as_ref().unwrap_err());
       }
     }
   }

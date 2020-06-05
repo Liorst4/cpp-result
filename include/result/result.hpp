@@ -69,10 +69,31 @@ public:
     return std::make_optional(std::get<err_t>(this->m_v).val);
   };
 
-  // TODO: auto as_ref() const -> Result<const T&, const E&>;
-  // TODO: auto as_mut() -> Result<T&, E&>;
+  [[nodiscard]] auto as_ref() const -> Result<const T &, const E &> {
+    if (this->is_ok()) {
+      const auto &wrapper_ref = std::get<ok_t>(this->m_v);
+      const auto &wrapper_value_ref = wrapper_ref.val;
+      return {Ok(wrapper_value_ref)};
+    } else {
+      const auto &wrapper_ref = std::get<err_t>(this->m_v);
+      const auto &wrapper_value_ref = wrapper_ref.val;
+      return {Err(wrapper_value_ref)};
+    }
+  }
 
-  template <typename U, typename F = std::function<U(const T &)>>
+  [[nodiscard]] auto as_mut() -> Result<T &, E &> {
+    if (this->is_ok()) {
+      auto &wrapper_ref = std::get<ok_t>(this->m_v);
+      auto &wrapper_value_ref = wrapper_ref.val;
+      return {Ok(wrapper_value_ref)};
+    } else {
+      auto &wrapper_ref = std::get<err_t>(this->m_v);
+      auto &wrapper_value_ref = wrapper_ref.val;
+      return {Err(wrapper_value_ref)};
+    }
+  }
+
+  template <typename U, typename F = std::function<U(T)>>
   [[nodiscard]] auto map(const F &op) const -> Result<U, E> {
     if (!this->is_ok()) {
       return {Err(this->unwrap_err())};
@@ -80,7 +101,7 @@ public:
     return {Ok(std::invoke(op, this->unwrap()))};
   };
 
-  template <typename U, typename F = std::function<U(const T &)>>
+  template <typename U, typename F = std::function<U(T)>>
   [[nodiscard]] auto map_or(const U &default_value, const F &op) const -> U {
     if (!this->is_ok()) {
       return default_value;
@@ -88,8 +109,8 @@ public:
     return std::invoke(op, this->unwrap());
   }
 
-  template <typename U, typename D = std::function<U(const E &)>,
-            typename F = std::function<U(const T &)>>
+  template <typename U, typename D = std::function<U(E)>,
+            typename F = std::function<U(T)>>
   [[nodiscard]] auto map_or_else(const D &on_err, const F &on_ok) const -> U {
     if (!this->is_ok()) {
       return std::invoke(on_err, this->unwrap_err());
@@ -97,7 +118,7 @@ public:
     return std::invoke(on_ok, this->unwrap());
   }
 
-  template <typename F, typename O = std::function<F(const E &)>>
+  template <typename F, typename O = std::function<F(E)>>
   [[nodiscard]] auto map_err(const O &op) const -> Result<T, F> {
     if (!this->is_ok()) {
       return {Err(std::invoke(op, this->unwrap_err()))};
@@ -114,7 +135,7 @@ public:
     return {Err(this->unwrap_err())};
   }
 
-  template <typename U, typename F = std::function<Result<U, E>(const T &)>>
+  template <typename U, typename F = std::function<Result<U, E>(T)>>
   [[nodiscard]] auto and_then(const F &op) const -> Result<U, E> {
     if (this->is_ok()) {
       return std::invoke(op, this->unwrap());
@@ -131,7 +152,7 @@ public:
     return {Ok(this->unwrap())};
   }
 
-  template <typename F, typename O = std::function<Result<T, F>(const E &)>>
+  template <typename F, typename O = std::function<Result<T, F>(E)>>
   [[nodiscard]] auto or_else(const O &op) const -> Result<T, F> {
     if (this->is_err()) {
       return std::invoke(op, this->unwrap_err());
@@ -139,34 +160,27 @@ public:
     return {Ok(this->unwrap())};
   }
 
-  [[nodiscard]] auto expect(const std::string_view &msg) const -> const T & {
+  [[nodiscard]] auto expect(const std::string_view &msg) const -> T {
     if (!this->is_ok()) {
       panic(msg);
     }
     return this->unwrap();
   }
-  [[nodiscard]] auto expect_err(const std::string_view &msg) const
-      -> const E & {
+  [[nodiscard]] auto expect_err(const std::string_view &msg) const -> E {
     if (!this->is_err()) {
       panic(msg);
     }
     return this->unwrap_err();
   }
 
-  [[nodiscard]] auto unwrap() const -> const T & {
-    if (!this->is_ok()) {
-      panic();
-    }
-    return std::get<ok_t>(this->m_v).val;
-  };
-  [[nodiscard]] auto unwrap() -> T & {
+  [[nodiscard]] auto unwrap() const -> T {
     if (!this->is_ok()) {
       panic();
     }
     return std::get<ok_t>(this->m_v).val;
   };
 
-  [[nodiscard]] auto unwrap_or(const T &default_value) const -> const T & {
+  [[nodiscard]] auto unwrap_or(const T &default_value) const -> T {
     if (!this->is_ok()) {
       return default_value;
     }
@@ -180,7 +194,7 @@ public:
     return this->unwrap();
   }
 
-  template <typename F = std::function<T(const E &)>>
+  template <typename F = std::function<T(E)>>
   [[nodiscard]] auto unwrap_or_else(const F &op) const -> T {
     if (!this->is_ok()) {
       return std::invoke(op, this->unwrap_err());
@@ -188,13 +202,7 @@ public:
     return this->unwrap();
   }
 
-  [[nodiscard]] auto unwrap_err() const -> const E & {
-    if (!this->is_err()) {
-      panic();
-    }
-    return std::get<err_t>(this->m_v).val;
-  };
-  [[nodiscard]] auto unwrap_err() -> E & {
+  [[nodiscard]] auto unwrap_err() const -> E {
     if (!this->is_err()) {
       panic();
     }
@@ -232,9 +240,9 @@ constexpr auto operator!=(const Result<T, E> &a, const Result<T, E> &b) {
   do {                                                                         \
     auto r = (__VA_ARGS__);                                                    \
     if (r.is_err()) {                                                          \
-      return {Err(std::move(r.unwrap_err()))};                                 \
+      return {Err(std::move(r.as_ref().unwrap_err()))};                        \
     }                                                                          \
-    lvalue = std::move(r.unwrap());                                            \
+    lvalue = std::move(r.as_ref().unwrap());                                   \
   } while (false)
 
 #endif /* CPP_RESULT_HPP */
