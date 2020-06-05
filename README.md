@@ -1,5 +1,5 @@
 # C++ Result
-Rust's `std::result` re-implemented in c++ using `std::variant`.
+Rust's `std::result::Result` re-implemented in c++ using `std::variant`.
 
 ## Example
 ```c++
