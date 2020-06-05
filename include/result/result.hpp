@@ -127,6 +127,13 @@ public:
     return this->unwrap();
   }
 
+  [[nodiscard]] auto unwrap_or_default() const -> T {
+    if (!this->is_ok()) {
+      return T{};
+    }
+    return this->unwrap();
+  }
+
   [[nodiscard]] auto unwrap_or_else(const std::function<T(const E &)> &op) const
       -> T {
     if (!this->is_ok()) {
@@ -141,8 +148,6 @@ public:
   [[nodiscard]] auto unwrap_err() -> E & {
     return std::get<err_t>(this->m_v).val;
   };
-
-  // TODO: unwrap_or_default
 
 private:
   std::variant<ok_t, err_t> m_v;

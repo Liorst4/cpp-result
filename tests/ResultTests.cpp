@@ -101,6 +101,7 @@ GTEST_TEST(resultTest, and_then) {
 // TODO: Test TRY_ASSIGNMENT.
 // TODO: Test unwrap_or
 // TODO: Test unwrap_or_else
+// TODO: Test unwrap_or_default
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
