@@ -240,7 +240,7 @@ constexpr auto operator!=(const Result<T, E> &a, const Result<T, E> &b) {
   do {                                                                         \
     auto r = (__VA_ARGS__);                                                    \
     if (r.is_err()) {                                                          \
-      return {Err(std::move(r.as_ref().unwrap_err()))};                        \
+      return {Err(std::move(r.as_mut().unwrap_err()))};                        \
     }                                                                          \
     lvalue = std::move(r.as_mut().unwrap());                                   \
   } while (false)
