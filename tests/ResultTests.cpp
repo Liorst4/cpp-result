@@ -282,5 +282,3 @@ SCENARIO("Interaction", "[result]") {
     REQUIRE(b.or_(a) == a);
   }
 }
-
-// TODO: Test TRY_ASSIGNMENT.

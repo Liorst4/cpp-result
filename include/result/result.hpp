@@ -231,18 +231,4 @@ constexpr auto operator!=(const Result<T, E> &a, const Result<T, E> &b) {
   return !a.equals(b);
 }
 
-/**
- * Emulates the `?` operator from rust in standard c++.
- * @param lvalue - the left side of the assignment expression. The symbol to
- * assign the result to.
- */
-#define TRY_ASSIGNMENT(lvalue, ...)                                            \
-  do {                                                                         \
-    auto r = (__VA_ARGS__);                                                    \
-    if (r.is_err()) {                                                          \
-      return {Err(std::move(r.as_mut().unwrap_err()))};                        \
-    }                                                                          \
-    lvalue = std::move(r.as_mut().unwrap());                                   \
-  } while (false)
-
 #endif /* CPP_RESULT_HPP */
