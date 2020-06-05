@@ -2,9 +2,15 @@
 #define CPP_RESULT_HPP
 
 #include <exception>
-#include <optional>
-#include <variant>
 #include <functional>
+#include <iostream>
+#include <optional>
+#include <string_view>
+#include <variant>
+
+#ifdef THROW_ON_PANIC
+using ResultException = std::logic_error;
+#endif // THROW_ON_PANIC
 
 struct ok_tag {};
 struct err_tag {};
@@ -116,9 +122,17 @@ public:
   // TODO: expect_err
 
   [[nodiscard]] auto unwrap() const -> const T & {
+    if (!this->is_ok()) {
+      panic();
+    }
     return std::get<ok_t>(this->m_v).val;
   };
-  [[nodiscard]] auto unwrap() -> T & { return std::get<ok_t>(this->m_v).val; };
+  [[nodiscard]] auto unwrap() -> T & {
+    if (!this->is_ok()) {
+      panic();
+    }
+    return std::get<ok_t>(this->m_v).val;
+  };
 
   [[nodiscard]] auto unwrap_or(const T &default_value) const -> const T & {
     if (!this->is_ok()) {
@@ -143,14 +157,29 @@ public:
   }
 
   [[nodiscard]] auto unwrap_err() const -> const E & {
+    if (!this->is_err()) {
+      panic();
+    }
     return std::get<err_t>(this->m_v).val;
   };
   [[nodiscard]] auto unwrap_err() -> E & {
+    if (!this->is_err()) {
+      panic();
+    }
     return std::get<err_t>(this->m_v).val;
   };
 
 private:
   std::variant<ok_t, err_t> m_v;
+
+  static void panic(const std::string_view &msg = "") {
+#ifdef THROW_ON_PANIC
+    throw ResultException{msg.data()};
+#else  // THROW_ON_PANIC
+    std::cerr << msg << std::endl;
+    std::terminate();
+#endif // THROW_ON_PANIC
+  }
 };
 
 template <typename T, typename E>

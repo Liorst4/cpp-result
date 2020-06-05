@@ -1,5 +1,6 @@
 #include <memory>
 
+#define THROW_ON_PANIC
 #include <result/result.hpp>
 
 #define CATCH_CONFIG_MAIN
@@ -32,7 +33,7 @@ SCENARIO("OK", "[result]") {
     WHEN("Unwraping its error value") {
       THEN("It can't be accessed") {
         int value = 0;
-        REQUIRE_THROWS(value = r.unwrap_err());
+        REQUIRE_THROWS_AS(value = r.unwrap_err(), ResultException);
       }
     }
     WHEN("Calling unwrap_or") {
@@ -99,7 +100,7 @@ SCENARIO("ERR", "[result]") {
     WHEN("Unwraping its ok value") {
       THEN("It can't be accessed") {
         int value = 0;
-        REQUIRE_THROWS(value = r.unwrap());
+        REQUIRE_THROWS_AS(value = r.unwrap(), ResultException);
       }
     }
     WHEN("Unwraping its error value") {
