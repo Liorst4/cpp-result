@@ -72,39 +72,35 @@ public:
   // TODO: auto as_ref() const -> Result<const T&, const E&>;
   // TODO: auto as_mut() -> Result<T&, E&>;
 
-  template <typename U>
-  [[nodiscard]] auto map(const std::function<U(const T &)> &op) const
-      -> Result<U, E> {
+  template <typename U, typename F = std::function<U(const T &)>>
+  [[nodiscard]] auto map(const F &op) const -> Result<U, E> {
     if (!this->is_ok()) {
       return {Err(this->unwrap_err())};
     }
-    return {Ok(op(this->unwrap()))};
+    return {Ok(std::invoke(op, this->unwrap()))};
   };
 
-  template <typename U>
-  [[nodiscard]] auto map_or(const U &default_value,
-                            const std::function<U(const T &)> &op) const -> U {
+  template <typename U, typename F = std::function<U(const T &)>>
+  [[nodiscard]] auto map_or(const U &default_value, const F &op) const -> U {
     if (!this->is_ok()) {
       return default_value;
     }
-    return op(this->unwrap());
+    return std::invoke(op, this->unwrap());
   }
 
-  template <typename U>
-  [[nodiscard]] auto map_or_else(const std::function<U(const E &)> &on_err,
-                                 const std::function<U(const T &)> &on_ok) const
-      -> U {
+  template <typename U, typename D = std::function<U(const E &)>,
+            typename F = std::function<U(const T &)>>
+  [[nodiscard]] auto map_or_else(const D &on_err, const F &on_ok) const -> U {
     if (!this->is_ok()) {
-      return on_err(this->unwrap_err());
+      return std::invoke(on_err, this->unwrap_err());
     }
-    return on_ok(this->unwrap());
+    return std::invoke(on_ok, this->unwrap());
   }
 
-  template <typename F>
-  [[nodiscard]] auto map_err(const std::function<F(const E &)> &op) const
-      -> Result<T, F> {
+  template <typename F, typename O = std::function<F(const E &)>>
+  [[nodiscard]] auto map_err(const O &op) const -> Result<T, F> {
     if (!this->is_ok()) {
-      return {Err(op(this->unwrap_err()))};
+      return {Err(std::invoke(op, this->unwrap_err()))};
     }
     return {Ok(this->unwrap())};
   }
@@ -118,12 +114,10 @@ public:
     return {Err(this->unwrap_err())};
   }
 
-  template <typename U>
-  [[nodiscard]] auto
-  and_then(const std::function<Result<U, E>(const T &)> &op) const
-      -> Result<U, E> {
+  template <typename U, typename F = std::function<Result<U, E>(const T &)>>
+  [[nodiscard]] auto and_then(const F &op) const -> Result<U, E> {
     if (this->is_ok()) {
-      return op(this->unwrap());
+      return std::invoke(op, this->unwrap());
     }
     return {Err(this->unwrap_err())};
   }
@@ -137,12 +131,10 @@ public:
     return {Ok(this->unwrap())};
   }
 
-  template <typename F>
-  [[nodiscard]] auto
-  or_else(const std::function<Result<T, F>(const E &)> &op) const
-      -> Result<T, F> {
+  template <typename F, typename O = std::function<Result<T, F>(const E &)>>
+  [[nodiscard]] auto or_else(const O &op) const -> Result<T, F> {
     if (this->is_err()) {
-      return op(this->unwrap_err());
+      return std::invoke(op, this->unwrap_err());
     }
     return {Ok(this->unwrap())};
   }
@@ -188,10 +180,10 @@ public:
     return this->unwrap();
   }
 
-  [[nodiscard]] auto unwrap_or_else(const std::function<T(const E &)> &op) const
-      -> T {
+  template <typename F = std::function<T(const E &)>>
+  [[nodiscard]] auto unwrap_or_else(const F &op) const -> T {
     if (!this->is_ok()) {
-      return op(this->unwrap_err());
+      return std::invoke(op, this->unwrap_err());
     }
     return this->unwrap();
   }
