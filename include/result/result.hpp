@@ -99,7 +99,7 @@ public:
       return {Err(this->unwrap_err())};
     }
     return {Ok(std::invoke(op, this->unwrap()))};
-  };
+  }
 
   template <typename U, typename F = std::function<U(T)>>
   [[nodiscard]] auto map_or(const U &default_value, const F &op) const -> U {
