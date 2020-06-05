@@ -99,8 +99,8 @@ SCENARIO("OK", "[result]") {
     }
   }
   GIVEN("A move only ok value") {
-    auto success = Result<std::unique_ptr<int>, int>{
-        Ok(std::move(std::make_unique<int>(5)))};
+    auto success =
+        Result<std::unique_ptr<int>, int>{Ok(std::make_unique<int>(5))};
     REQUIRE(5 == *success.as_ref().unwrap());
     WHEN("Its moved") {
       std::unique_ptr<int> y = std::move(success.as_mut().unwrap());
