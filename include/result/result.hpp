@@ -118,8 +118,19 @@ public:
     return {Ok(this->unwrap())};
   }
 
-  // TODO: expect
-  // TODO: expect_err
+  [[nodiscard]] auto expect(const std::string_view &msg) const -> const T & {
+    if (!this->is_ok()) {
+      panic(msg);
+    }
+    return this->unwrap();
+  }
+  [[nodiscard]] auto expect_err(const std::string_view &msg) const
+      -> const E & {
+    if (!this->is_err()) {
+      panic(msg);
+    }
+    return this->unwrap_err();
+  }
 
   [[nodiscard]] auto unwrap() const -> const T & {
     if (!this->is_ok()) {

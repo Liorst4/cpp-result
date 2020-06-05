@@ -65,6 +65,16 @@ SCENARIO("OK", "[result]") {
         REQUIRE(r.unwrap_or_else(([](const int &) -> int { return 3; })) == 5);
       }
     }
+    WHEN("Calling expect") {
+      THEN("The expected value is returned") {
+        REQUIRE(r.expect("oh no!") == 5);
+      }
+    }
+    WHEN("Calling expect_err") {
+      THEN("The expected value is not returned") {
+        REQUIRE_THROWS_AS(r.expect_err("oh no!") == 5, ResultException);
+      }
+    }
   }
   GIVEN("A move only ok value") {
     auto success =
@@ -135,6 +145,16 @@ SCENARIO("ERR", "[result]") {
     WHEN("Calling unwrap_or_else") {
       THEN("The given function is called") {
         REQUIRE(r.unwrap_or_else(([](const int &) -> int { return 3; })) == 3);
+      }
+    }
+    WHEN("Calling expect") {
+      THEN("The expected value is not returned") {
+        REQUIRE_THROWS_AS(r.expect("oh no!") == 5, ResultException);
+      }
+    }
+    WHEN("Calling expect_err") {
+      THEN("The expected value is returned") {
+        REQUIRE(r.expect_err("oh no!") == 5);
       }
     }
   }
