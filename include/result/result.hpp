@@ -96,7 +96,7 @@ public:
 
   template <typename U, typename F,
             typename = std::enable_if_t<std::is_invocable_r_v<U, F, T>>>
-  [[nodiscard]] auto map(const F &op) const -> Result<U, E> {
+  [[nodiscard]] auto map(F &&op) const -> Result<U, E> {
     if (!this->is_ok()) {
       return {Err(this->unwrap_err())};
     }
@@ -105,7 +105,7 @@ public:
 
   template <typename U, typename F,
             typename = std::enable_if_t<std::is_invocable_r_v<U, F, T>>>
-  [[nodiscard]] auto map_or(const U &default_value, const F &op) const -> U {
+  [[nodiscard]] auto map_or(const U &default_value, F &&op) const -> U {
     if (!this->is_ok()) {
       return default_value;
     }
@@ -115,7 +115,7 @@ public:
   template <typename U, typename D, typename F,
             typename = std::enable_if_t<std::is_invocable_r_v<U, D, E>>,
             typename = std::enable_if_t<std::is_invocable_r_v<U, F, T>>>
-  [[nodiscard]] auto map_or_else(const D &on_err, const F &on_ok) const -> U {
+  [[nodiscard]] auto map_or_else(D &&on_err, F &&on_ok) const -> U {
     if (!this->is_ok()) {
       return std::invoke(on_err, this->unwrap_err());
     }
@@ -124,7 +124,7 @@ public:
 
   template <typename F, typename O,
             typename = std::enable_if_t<std::is_invocable_r_v<F, O, E>>>
-  [[nodiscard]] auto map_err(const O &op) const -> Result<T, F> {
+  [[nodiscard]] auto map_err(O &&op) const -> Result<T, F> {
     if (!this->is_ok()) {
       return {Err(std::invoke(op, this->unwrap_err()))};
     }
@@ -143,7 +143,7 @@ public:
   template <
       typename U, typename F,
       typename = std::enable_if_t<std::is_invocable_r_v<Result<U, E>, F, T>>>
-  [[nodiscard]] auto and_then(const F &op) const -> Result<U, E> {
+  [[nodiscard]] auto and_then(F &&op) const -> Result<U, E> {
     if (this->is_ok()) {
       return std::invoke(op, this->unwrap());
     }
@@ -162,7 +162,7 @@ public:
   template <
       typename F, typename O,
       typename = std::enable_if_t<std::is_invocable_r_v<Result<T, F>, O, E>>>
-  [[nodiscard]] auto or_else(const O &op) const -> Result<T, F> {
+  [[nodiscard]] auto or_else(O &&op) const -> Result<T, F> {
     if (this->is_err()) {
       return std::invoke(op, this->unwrap_err());
     }
@@ -205,7 +205,7 @@ public:
 
   template <typename F,
             typename = std::enable_if_t<std::is_invocable_r_v<T, F, E>>>
-  [[nodiscard]] auto unwrap_or_else(const F &op) const -> T {
+  [[nodiscard]] auto unwrap_or_else(F &&op) const -> T {
     if (!this->is_ok()) {
       return std::invoke(op, this->unwrap_err());
     }
