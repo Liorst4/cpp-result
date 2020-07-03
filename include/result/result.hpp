@@ -6,6 +6,7 @@
 #include <iostream>
 #include <optional>
 #include <string_view>
+#include <type_traits>
 #include <variant>
 
 #ifdef THROW_ON_PANIC
@@ -93,7 +94,8 @@ public:
     }
   }
 
-  template <typename U, typename F = std::function<U(T)>>
+  template <typename U, typename F,
+            typename = std::enable_if_t<std::is_invocable_r_v<U, F, T>>>
   [[nodiscard]] auto map(const F &op) const -> Result<U, E> {
     if (!this->is_ok()) {
       return {Err(this->unwrap_err())};
@@ -101,7 +103,8 @@ public:
     return {Ok(std::invoke(op, this->unwrap()))};
   }
 
-  template <typename U, typename F = std::function<U(T)>>
+  template <typename U, typename F,
+            typename = std::enable_if_t<std::is_invocable_r_v<U, F, T>>>
   [[nodiscard]] auto map_or(const U &default_value, const F &op) const -> U {
     if (!this->is_ok()) {
       return default_value;
@@ -109,8 +112,9 @@ public:
     return std::invoke(op, this->unwrap());
   }
 
-  template <typename U, typename D = std::function<U(E)>,
-            typename F = std::function<U(T)>>
+  template <typename U, typename D, typename F,
+            typename = std::enable_if_t<std::is_invocable_r_v<U, D, E>>,
+            typename = std::enable_if_t<std::is_invocable_r_v<U, F, T>>>
   [[nodiscard]] auto map_or_else(const D &on_err, const F &on_ok) const -> U {
     if (!this->is_ok()) {
       return std::invoke(on_err, this->unwrap_err());
@@ -118,7 +122,8 @@ public:
     return std::invoke(on_ok, this->unwrap());
   }
 
-  template <typename F, typename O = std::function<F(E)>>
+  template <typename F, typename O,
+            typename = std::enable_if_t<std::is_invocable_r_v<F, O, E>>>
   [[nodiscard]] auto map_err(const O &op) const -> Result<T, F> {
     if (!this->is_ok()) {
       return {Err(std::invoke(op, this->unwrap_err()))};
@@ -135,7 +140,9 @@ public:
     return {Err(this->unwrap_err())};
   }
 
-  template <typename U, typename F = std::function<Result<U, E>(T)>>
+  template <
+      typename U, typename F,
+      typename = std::enable_if_t<std::is_invocable_r_v<Result<U, E>, F, T>>>
   [[nodiscard]] auto and_then(const F &op) const -> Result<U, E> {
     if (this->is_ok()) {
       return std::invoke(op, this->unwrap());
@@ -152,7 +159,9 @@ public:
     return {Ok(this->unwrap())};
   }
 
-  template <typename F, typename O = std::function<Result<T, F>(E)>>
+  template <
+      typename F, typename O,
+      typename = std::enable_if_t<std::is_invocable_r_v<Result<T, F>, O, E>>>
   [[nodiscard]] auto or_else(const O &op) const -> Result<T, F> {
     if (this->is_err()) {
       return std::invoke(op, this->unwrap_err());
@@ -194,7 +203,8 @@ public:
     return this->unwrap();
   }
 
-  template <typename F = std::function<T(E)>>
+  template <typename F,
+            typename = std::enable_if_t<std::is_invocable_r_v<T, F, E>>>
   [[nodiscard]] auto unwrap_or_else(const F &op) const -> T {
     if (!this->is_ok()) {
       return std::invoke(op, this->unwrap_err());
