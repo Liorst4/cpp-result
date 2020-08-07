@@ -241,4 +241,20 @@ constexpr auto operator!=(const Result<T, E> &a, const Result<T, E> &b) {
   return !a.equals(b);
 }
 
+// A rough replacement for the `?` operator in rust.
+// Given symbols to assign to, a function that returns a Result type and the
+// function arguments:
+// If the function returned Ok the Ok value in the result will be assigned to
+// the symbol.
+// If the function returned Err the Err value will be returned by the scope that
+// uses this macro.
+#define TRY_ASSIGNMENT(lvalue, function_that_returns_a_result, ...)            \
+  do {                                                                         \
+    auto r = function_that_returns_a_result(__VA_ARGS__);                      \
+    if (r.is_err()) {                                                          \
+      return {Err(std::move(r.as_mut().unwrap_err()))};                        \
+    }                                                                          \
+    lvalue = std::move(r.as_mut().unwrap());                                   \
+  } while (false)
+
 #endif /* CPP_RESULT_HPP */

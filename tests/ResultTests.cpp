@@ -282,3 +282,31 @@ SCENARIO("Interaction", "[result]") {
     REQUIRE(b.or_(a) == a);
   }
 }
+
+SCENARIO("try assignment", "[result]") {
+  GIVEN("A high order function that returns a Result and accepts a function "
+        "that returns a Result") {
+    auto scenario = [](const std::function<Result<int, int>(void)> &callback)
+        -> Result<int, int> {
+      auto good = int{0};
+      TRY_ASSIGNMENT(good, callback, );
+      return {Ok(good + 10)};
+    };
+    WHEN("Given a function that succeeds") {
+      auto always_successful = []() -> Result<int, int> { return {Ok(5)}; };
+      auto final_result = scenario(always_successful);
+      THEN("The final result is an Ok") {
+        REQUIRE(final_result.is_ok());
+        REQUIRE(15 == final_result.unwrap());
+      }
+    }
+    WHEN("Given a function that fails") {
+      auto always_fails = []() -> Result<int, int> { return {Err(5)}; };
+      auto final_result = scenario(always_fails);
+      THEN("The final result is an Err") {
+        REQUIRE(final_result.is_err());
+        REQUIRE(5 == final_result.unwrap_err());
+      }
+    }
+  }
+}
